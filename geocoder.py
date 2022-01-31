@@ -107,7 +107,7 @@ def get_static_map(lat=None, lon=None, **params):
         **params,
     }
     if not (lat is None or lon is None):
-        ll = ",".join([lat, lon])
+        ll = ",".join([str(lat), str(lon)])
         map_params['ll'] = ll
     map_api_server = "http://static-maps.yandex.ru/1.x/"
     # ... и выполняем запрос
