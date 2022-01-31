@@ -10,8 +10,13 @@ from PyQt5.QtWidgets import QApplication, QLabel, QMainWindow, QFileDialog
 SCREEN_SIZE = [600, 450]
 
 
+class MapWidget(QtWidgets.QWidget):
+    def __init__(self, lat, lon):
+        super().__init__()
+        self.map = self.get_image(lat, lon)
 
-
+    def get_image(self, lan, lon):
+        pass
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -21,7 +26,7 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
-        self.widget = QtWidgets.QWidget(self.centralwidget)
+        self.widget = MapWidget(self.centralwidget)
         self.widget.setObjectName("widget")
         self.gridLayout.addWidget(self.widget, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
