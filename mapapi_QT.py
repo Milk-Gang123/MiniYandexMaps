@@ -10,6 +10,9 @@ from PyQt5.QtWidgets import QApplication, QLabel, QMainWindow, QFileDialog
 SCREEN_SIZE = [600, 450]
 
 
+
+
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -47,6 +50,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def initUI(self):
         self.setGeometry(400, 400, *SCREEN_SIZE)
         self.setWindowTitle('Карта')
+
+    def load_image(self, image):
+        pass
 
 
 if __name__ == '__main__':
