@@ -12,25 +12,44 @@ from io import BytesIO
 from geocoder import *
 
 SCREEN_SIZE = [600, 450]
-lat, lon = "37.619727", "55.750536"
+LAT, LON = "37.619727", "55.750536"
 
 
 class MapWidget(QtWidgets.QWidget):
     def __init__(self, parent, lat, lon):
         super().__init__(parent)
-        self.map = self.get_image(lat, lon)
-        self.pixmap = QPixmap()
-        self.pixmap.loadFromData(self.map)
+        self.params = {'lat': lat, 'lon': lon, 'z': 19}
         self.label = QtWidgets.QLabel(self)
-        self.label.resize(*SCREEN_SIZE)
-        self.label.setPixmap(self.pixmap)
+        self.map = None
+        self.pixmap = QPixmap()
+        self.update_image(**self.params)
 
-    def get_image(self, lan, lon):
-        image = get_static_map(lan, lon)
+    def get_image(self, lat, lon, **params):
+        image = get_static_map(lat, lon, **params)
         return image
 
+    def update_image(self, **params):
+        self.map = self.get_image(**params)
+        self.set_image(self.map)
+
     def set_image(self, image):
+        self.pixmap.loadFromData(image)
         self.label.setPixmap(self.pixmap)
+
+    def move_map(self, key):
+        if key == 16777236:
+            self.params['lat'] = str(float(self.params['lat']) + 0.0001)
+        elif key == 16777234:
+            self.params['lat'] = str(float(self.params['lat']) - 0.0001)
+        elif key == 16777235:
+            self.params['lon'] = str(float(self.params['lon']) + 0.0001)
+        elif key == 16777237:
+            self.params['lon'] = str(float(self.params['lon']) - 0.0001)
+        self.update_image(**self.params)
+
+
+
+
 
 
 class Ui_MainWindow(object):
@@ -41,7 +60,7 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
-        self.widget = MapWidget(self.centralwidget, lat, lon)
+        self.widget = MapWidget(self.centralwidget, LAT, LON)
         self.widget.setObjectName("widget")
         self.gridLayout.addWidget(self.widget, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -73,6 +92,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def load_image(self, image):
         pass
+
+    def keyPressEvent(self, event):
+        self.widget.move_map(event.key())
 
 
 if __name__ == '__main__':
