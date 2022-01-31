@@ -8,6 +8,7 @@ from geocoder import *
 
 SCREEN_SIZE = [600, 450]
 LAT, LON = "37.619727", "55.750536"
+MAX_SCALE, MIN_SCALE = 19, 1
 
 
 class MapWidget(QtWidgets.QWidget):
@@ -32,14 +33,25 @@ class MapWidget(QtWidgets.QWidget):
         self.label.setPixmap(self.pixmap)
 
     def move_map(self, key):
+        delta = 298.033 * math.e ** (-0.678 * self.params['z'])
         if key == 16777236:
-            self.params['lat'] = str(float(self.params['lat']) + 0.0001)
+            self.params['lat'] = str(float(self.params['lat']) + delta)
         elif key == 16777234:
-            self.params['lat'] = str(float(self.params['lat']) - 0.0001)
+            self.params['lat'] = str(float(self.params['lat']) - delta)
         elif key == 16777235:
-            self.params['lon'] = str(float(self.params['lon']) + 0.0001)
+            self.params['lon'] = str(float(self.params['lon']) + delta)
         elif key == 16777237:
-            self.params['lon'] = str(float(self.params['lon']) - 0.0001)
+            self.params['lon'] = str(float(self.params['lon']) - delta)
+        self.params['lat'] = str(max(min(float(self.params['lat']), 180), -180))
+        self.params['lon'] = str(max(min(float(self.params['lon']), 90), -90))
+        self.update_image(**self.params)
+
+    def scale_map(self, key):
+        if key == QtCore.Qt.Key.Key_PageUp:
+            self.params['z'] = self.params['z'] + 1
+        elif key == QtCore.Qt.Key.Key_PageDown:
+            self.params['z'] = self.params['z'] - 1
+        self.params['z'] = max(min(self.params['z'], MAX_SCALE), MIN_SCALE)
         self.update_image(**self.params)
 
 
@@ -86,6 +98,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def keyPressEvent(self, event):
         self.widget.move_map(event.key())
+        self.widget.scale_map(event.key())
 
 
 if __name__ == '__main__':
