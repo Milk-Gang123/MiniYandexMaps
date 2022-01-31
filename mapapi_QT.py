@@ -1,13 +1,8 @@
 import sys
-import random
-import requests
 
-from PIL import Image
+from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtGui import QPixmap
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QApplication, QLabel, QMainWindow, QFileDialog
-
-from io import BytesIO
+from PyQt5.QtWidgets import QApplication, QMainWindow
 
 from geocoder import *
 
@@ -46,10 +41,6 @@ class MapWidget(QtWidgets.QWidget):
         elif key == 16777237:
             self.params['lon'] = str(float(self.params['lon']) - 0.0001)
         self.update_image(**self.params)
-
-
-
-
 
 
 class Ui_MainWindow(object):
