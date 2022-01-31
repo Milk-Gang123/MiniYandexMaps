@@ -23,6 +23,7 @@ class MapWidget(QtWidgets.QWidget):
         self.pixmap.loadFromData(self.map)
         self.label = QtWidgets.QLabel(self)
         self.label.resize(*SCREEN_SIZE)
+        self.label.setPixmap(self.pixmap)
 
     def get_image(self, lan, lon):
         image = get_static_map(lan, lon)
