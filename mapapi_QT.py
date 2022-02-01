@@ -14,7 +14,7 @@ MAX_SCALE, MIN_SCALE = 19, 1
 class MapWidget(QtWidgets.QWidget):
     def __init__(self, parent, lat, lon):
         super().__init__(parent)
-        self.params = {'lat': lat, 'lon': lon, 'z': 19}
+        self.params = {'lat': lat, 'lon': lon, 'z': 18}
         self.label = QtWidgets.QLabel(self)
         self.map = None
         self.pixmap = QPixmap()
@@ -73,6 +73,11 @@ class Ui_MainWindow(object):
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
+        self.lineEdit = QtWidgets.QLineEdit(MainWindow)
+        self.lineEdit.setGeometry(10, 420, 480, 25)
+        self.button = QtWidgets.QPushButton(MainWindow)
+        self.button.setGeometry(490, 420, 100, 25)
+        self.button.setText('Искать')
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
@@ -88,6 +93,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super().__init__()
         self.setupUi(self)
         self.initUI()
+        self.button.clicked.connect(self.search)
 
     def initUI(self):
         self.setGeometry(400, 400, *SCREEN_SIZE)
@@ -99,6 +105,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def keyPressEvent(self, event):
         self.widget.move_map(event.key())
         self.widget.scale_map(event.key())
+
+    def search(self):
+        try:
+            address = self.lineEdit.text()
+            toponym = get_toponym(geocode(address))
+            cords = [str(i) for i in get_coordinates(toponym)]
+            self.widget.params['lat'] = cords[0]
+            self.widget.params['lon'] = cords[1]
+            self.widget.update_image(**self.widget.params)
+        except Exception as e:
+            print('Неверный запрос')
+        self.widget.setFocus()
+
 
 
 if __name__ == '__main__':
