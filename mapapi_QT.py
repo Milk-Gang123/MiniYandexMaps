@@ -12,9 +12,11 @@ MAX_SCALE, MIN_SCALE = 19, 1
 
 
 class MapWidget(QtWidgets.QWidget):
+    pointer_style = 'pm2' + 'org' + 'l'
+
     def __init__(self, parent, lat, lon):
         super().__init__(parent)
-        self.params = {'lat': lat, 'lon': lon, 'z': 18}
+        self.params = {'lat': lat, 'lon': lon, 'z': 18, 'pt': ''}
         self.label = QtWidgets.QLabel(self)
         self.map = None
         self.pixmap = QPixmap()
@@ -53,6 +55,10 @@ class MapWidget(QtWidgets.QWidget):
             self.params['z'] = self.params['z'] - 1
         self.params['z'] = max(min(self.params['z'], MAX_SCALE), MIN_SCALE)
         self.update_image(**self.params)
+
+    def add_pointer(self, lat, lon):
+        pointer = f'{lat},{lon},{self.pointer_style}'
+        self.params['pt'] += pointer
 
 
 class Ui_MainWindow(object):
@@ -115,11 +121,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             cords = [str(i) for i in get_coordinates(toponym)]
             self.widget.params['lat'] = cords[0]
             self.widget.params['lon'] = cords[1]
+            self.widget.add_pointer(*cords)
             self.widget.update_image(**self.widget.params)
         except Exception as e:
             print('Неверный запрос')
         self.widget.setFocus()
-
 
 
 if __name__ == '__main__':
