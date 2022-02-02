@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 from geocoder import *
 
 SCREEN_SIZE = [600, 450]
-LAT, LON = "37.619727", "55.750536"
+LAT, LON = "37.620447", "55.751034"
 MAX_SCALE, MIN_SCALE = 19, 1
 
 
@@ -74,6 +74,7 @@ class Ui_MainWindow(object):
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         self.lineEdit = QtWidgets.QLineEdit(MainWindow)
+        self.lineEdit.setText('Россия, Москва, Большой Кремлёвский сквер')
         self.lineEdit.setGeometry(10, 420, 480, 25)
         self.button = QtWidgets.QPushButton(MainWindow)
         self.button.setGeometry(490, 420, 100, 25)
