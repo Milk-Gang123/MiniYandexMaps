@@ -92,6 +92,7 @@ class Ui_MainWindow(object):
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
+        self.setFocusPolicy(QtCore.Qt.ClickFocus)
         self.setupUi(self)
         self.initUI()
         self.button.clicked.connect(self.search)
