@@ -34,6 +34,15 @@ def get_ll_span(toponym):
     return (dx, dy)
 
 
+def get_postal_code(request):
+    try:
+        toponym = get_toponym(request)
+        postal_code = toponym['metaDataProperty']['GeocoderMetaData']['Address']['postal_code']
+        return postal_code
+    except Exception as e:
+        return False
+
+
 def get_toponym(geocode_result):
     # Получаем первый топоним из ответа геокодера.
     try:
