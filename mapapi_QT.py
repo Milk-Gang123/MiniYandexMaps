@@ -24,7 +24,6 @@ class MapWidget(QtWidgets.QWidget):
         self.pixmap = QPixmap()
         self.update_image(**self.params)
 
-
     def get_image(self, lat, lon, **params):
         image = get_static_map(lat, lon, **params)
         return image
@@ -49,6 +48,9 @@ class MapWidget(QtWidgets.QWidget):
             self.params['lon'] = str(float(self.params['lon']) - delta)
         elif key == 1050:
             self.l_pos = (self.l_pos + 1) % len(self.l_types)
+        elif key == 1040:
+            self.clear_points()
+        print(key)
         self.params["l"] = self.l_types[self.l_pos]
         self.params['lat'] = str(max(min(float(self.params['lat']), 180), -180))
         self.params['lon'] = str(max(min(float(self.params['lon']), 90), -90))
@@ -65,6 +67,9 @@ class MapWidget(QtWidgets.QWidget):
     def add_pointer(self, lat, lon):
         pointer = f'{lat},{lon},{self.pointer_style}'
         self.params['pt'] += pointer
+
+    def clear_points(self):
+        self.params["pt"] = ""
 
 
 class Ui_MainWindow(object):
@@ -119,6 +124,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def keyPressEvent(self, event):
         self.widget.move_map(event.key())
         self.widget.scale_map(event.key())
+        if event.key() == 1040:
+            self.lineEdit.setText("Введите поисковый запрос")
 
     def search(self):
         try:
