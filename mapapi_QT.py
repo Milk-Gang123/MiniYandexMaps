@@ -50,7 +50,6 @@ class MapWidget(QtWidgets.QWidget):
             self.l_pos = (self.l_pos + 1) % len(self.l_types)
         elif key == 1040:
             self.clear_points()
-        print(key)
         self.params["l"] = self.l_types[self.l_pos]
         self.params['lat'] = str(max(min(float(self.params['lat']), 180), -180))
         self.params['lon'] = str(max(min(float(self.params['lon']), 90), -90))
