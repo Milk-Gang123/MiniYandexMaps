@@ -65,7 +65,7 @@ class MapWidget(QtWidgets.QWidget):
 
     def add_pointer(self, lat, lon):
         pointer = f'{lat},{lon},{self.pointer_style}'
-        self.params['pt'] += pointer
+        self.params['pt'] = pointer
 
     def clear_points(self):
         self.params["pt"] = ""
