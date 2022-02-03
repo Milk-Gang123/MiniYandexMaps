@@ -83,8 +83,6 @@ class MainWindow(QMainWindow):
         uic.loadUi('main_menu.ui', self)
         self.setFocusPolicy(QtCore.Qt.ClickFocus)
         self.initUI()
-        self.button.clicked.connect(self.search)
-        self.check_box.stateChanged.connect(self.show_postal_code)
 
     def initUI(self):
         self.setGeometry(400, 400, *SCREEN_SIZE)
