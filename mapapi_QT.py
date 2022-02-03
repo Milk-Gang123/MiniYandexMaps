@@ -96,6 +96,10 @@ class MainWindow(QMainWindow):
         self.pushButton_3.setText("map")
         self.pushButton_3.clicked.connect(self.change_mode)
         self.pushButton_2.clicked.connect(self.clear_points)
+        self.check_box = QtWidgets.QCheckBox(self)
+        self.check_box.setStyleSheet('QCheckBox::indicator {width:  25px;height: 25px;}')
+        self.check_box.setGeometry(462, 407, 50, 50)
+        self.check_box.stateChanged.connect(self.show_postal_code)
 
     def keyPressEvent(self, event):
         self.widget.move_map(event.key())
