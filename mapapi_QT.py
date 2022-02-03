@@ -1,12 +1,14 @@
 import sys
 
-from PyQt5 import QtCore, QtWidgets
+import PyQt5
+from PyQt5 import QtCore, QtWidgets, uic
+from PyQt5.QtCore import Qt, QEvent
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow
 
 from geocoder import *
 
-SCREEN_SIZE = [600, 450]
+SCREEN_SIZE = [639, 539]
 LAT, LON = "37.620447", "55.751034"
 MAX_SCALE, MIN_SCALE = 19, 1
 
@@ -47,7 +49,7 @@ class MapWidget(QtWidgets.QWidget):
         elif key == 16777237:
             self.params['lon'] = str(float(self.params['lon']) - delta)
         elif key == 1050:
-            self.l_pos = (self.l_pos + 1) % len(self.l_types)
+            self.change_mode()
         elif key == 1040:
             self.clear_points()
         self.params["l"] = self.l_types[self.l_pos]
@@ -70,61 +72,46 @@ class MapWidget(QtWidgets.QWidget):
     def clear_points(self):
         self.params["pt"] = ""
 
-
-class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(600, 650)
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
-        self.centralwidget.setObjectName("centralwidget")
-        self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
-        self.gridLayout.setObjectName("gridLayout")
-        self.widget = MapWidget(self.centralwidget, LAT, LON)
-        self.widget.setObjectName("widget")
-        self.gridLayout.addWidget(self.widget, 0, 0, 1, 1)
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 21))
-        self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        self.statusbar.setObjectName("statusbar")
-        self.lineEdit = QtWidgets.QLineEdit(MainWindow)
-        self.lineEdit.setText('Россия, Москва, Большой Кремлёвский сквер')
-        self.lineEdit.setGeometry(10, 420, 480, 25)
-        self.button = QtWidgets.QPushButton(MainWindow)
-        self.button.setGeometry(490, 420, 100, 25)
-        self.button.setText('Искать')
-        MainWindow.setStatusBar(self.statusbar)
-
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
-    def retranslateUi(self, MainWindow):
-        _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+    def change_mode(self):
+        self.l_pos = (self.l_pos + 1) % len(self.l_types)
 
 
-class MainWindow(QMainWindow, Ui_MainWindow):
+
+class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        uic.loadUi('main_menu.ui', self)
         self.setFocusPolicy(QtCore.Qt.ClickFocus)
-        self.setupUi(self)
         self.initUI()
-        self.button.clicked.connect(self.search)
 
     def initUI(self):
         self.setGeometry(400, 400, *SCREEN_SIZE)
         self.setWindowTitle('Карта')
 
-    def load_image(self, image):
-        pass
+        self.widget = MapWidget(self.widget, LAT, LON)
+        self.widget.setGeometry(10, 10, 650, 450)
+        self.pushButton.clicked.connect(self.search)
+        self.pushButton_3 = QtWidgets.QPushButton(self)
+        self.pushButton_3.setGeometry(580, 30, 31, 21)
+        self.pushButton_3.setText("map")
+        self.pushButton_3.clicked.connect(self.change_mode)
+        self.pushButton_2.clicked.connect(self.clear_points)
 
     def keyPressEvent(self, event):
         self.widget.move_map(event.key())
         self.widget.scale_map(event.key())
         if event.key() == 1040:
             self.lineEdit.setText("Введите поисковый запрос")
+        elif event.key() == 1050:
+            self.pushButton_3.setText(self.widget.params["l"])
+
+    def change_mode(self):
+        self.widget.move_map(1050)
+        self.pushButton_3.setText(self.widget.params["l"])
+
+    def clear_points(self):
+        self.widget.move_map(1040)
+        self.lineEdit.setText("Введите поисковый запрос")
 
     def search(self):
         try:
