@@ -49,7 +49,7 @@ class MapWidget(QtWidgets.QWidget):
         elif key == 16777237:
             self.params['lon'] = str(float(self.params['lon']) - delta)
         elif key == 1050:
-            self.change_mode()
+            self.l_pos = (self.l_pos + 1) % len(self.l_types)
         elif key == 1040:
             self.clear_points()
         self.params["l"] = self.l_types[self.l_pos]
@@ -83,6 +83,8 @@ class MainWindow(QMainWindow):
         uic.loadUi('main_menu.ui', self)
         self.setFocusPolicy(QtCore.Qt.ClickFocus)
         self.initUI()
+        self.button.clicked.connect(self.search)
+        self.check_box.stateChanged.connect(self.show_postal_code)
 
     def initUI(self):
         self.setGeometry(400, 400, *SCREEN_SIZE)
@@ -126,6 +128,17 @@ class MainWindow(QMainWindow):
             print('Неверный запрос')
         self.widget.setFocus()
 
+    def show_postal_code(self):
+        if self.check_box.isChecked():
+            request = geocode(self.lineEdit.text())
+            postal_code = get_postal_code(request)
+            if postal_code:
+                self.lineEdit.setText(self.lineEdit.text() + f' Почтовый индекс: {postal_code}')
+                self.len_postal_code = len(f' Почтовый индекс: {postal_code}')
+            else:
+                self.len_postal_code = 0
+        elif not self.check_box.isChecked():
+            self.lineEdit.setText(self.lineEdit.text()[:len(self.lineEdit.text()) - self.len_postal_code])
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
