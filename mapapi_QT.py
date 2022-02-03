@@ -75,10 +75,14 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         self.lineEdit = QtWidgets.QLineEdit(MainWindow)
         self.lineEdit.setText('Россия, Москва, Большой Кремлёвский сквер')
-        self.lineEdit.setGeometry(10, 420, 480, 25)
+        self.lineEdit.setGeometry(10, 420, 450, 25)
         self.button = QtWidgets.QPushButton(MainWindow)
-        self.button.setGeometry(490, 420, 100, 25)
+        self.button.setGeometry(489, 419, 100, 26)
+        self.len_postal_code = 0
         self.button.setText('Искать')
+        self.check_box = QtWidgets.QCheckBox(MainWindow)
+        self.check_box.setStyleSheet('QCheckBox::indicator {width:  25px;height: 25px;}')
+        self.check_box.setGeometry(462, 407, 50, 50)
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
@@ -96,6 +100,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.initUI()
         self.button.clicked.connect(self.search)
+        self.check_box.stateChanged.connect(self.show_postal_code)
 
     def initUI(self):
         self.setGeometry(400, 400, *SCREEN_SIZE)
@@ -117,9 +122,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.widget.params['lon'] = cords[1]
             self.widget.update_image(**self.widget.params)
         except Exception as e:
-            print('Неверный запрос')
+            pass
         self.widget.setFocus()
 
+    def show_postal_code(self):
+        if self.check_box.isChecked():
+            request = geocode(self.lineEdit.text())
+            postal_code = get_postal_code(request)
+            if postal_code:
+                self.lineEdit.setText(self.lineEdit.text() + f' Почтовый индекс: {postal_code}')
+                self.len_postal_code = len(f' Почтовый индекс: {postal_code}')
+            else:
+                self.len_postal_code = 0
+        elif not self.check_box.isChecked():
+            self.lineEdit.setText(self.lineEdit.text()[:len(self.lineEdit.text()) - self.len_postal_code])
 
 
 if __name__ == '__main__':
