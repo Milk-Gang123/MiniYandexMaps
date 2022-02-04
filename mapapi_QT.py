@@ -90,7 +90,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnMapStyle.setFixedSize(31, 21)
         self.btnMapStyle.setText("map")
         self.btnMapStyle.clicked.connect(self.change_mode)
-        self.btnClear.clicked.connect(self.clear_points)
+        self.btnClear.clicked.connect(self.clear_search_results)
         self.checkBoxPostCode.setStyleSheet('QCheckBox::indicator {width:  25px;height: 25px;}')
         self.checkBoxPostCode.stateChanged.connect(self.show_postal_code)
 
@@ -106,9 +106,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.mapWidget.move_map(1050)
         self.btnMapStyle.setText(self.mapWidget.params["l"])
 
-    def clear_points(self):
+    def clear_search_results(self):
         self.mapWidget.move_map(1040)
         self.lineEditSearch.clear()
+        self.labelFullAddress.clear()
 
     def search(self):
         try:
