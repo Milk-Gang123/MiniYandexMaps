@@ -7,7 +7,6 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 from geocoder import *
 from main_menu_design import Ui_MainWindow
 
-SCREEN_SIZE = [639, 539]
 LAT, LON = "37.620447", "55.751034"
 MAX_SCALE, MIN_SCALE = 19, 1
 
@@ -99,7 +98,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.mapWidget.move_map(event.key())
         self.mapWidget.scale_map(event.key())
         if event.key() == 1040:
-            self.lineEditSearch.setText("Введите поисковый запрос")
+            self.lineEditSearch.clear()
         elif event.key() == 1050:
             self.btnMapStyle.setText(self.mapWidget.params["l"])
 
@@ -120,8 +119,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.mapWidget.params['lon'] = cords[1]
             self.mapWidget.add_pointer(*cords)
             self.mapWidget.update_image(**self.mapWidget.params)
+            full_address = toponym['metaDataProperty']['GeocoderMetaData']['Address']['formatted']
+            self.labelFullAddress.setText(full_address)
         except Exception:
-            print('Неверный запрос')
+            self.statusBar.showMessage("Неверный запрос", 2 * 1000)
         self.mapWidget.setFocus()
 
     def show_postal_code(self):
