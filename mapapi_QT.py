@@ -15,7 +15,7 @@ MAX_SCALE, MIN_SCALE = 19, 1
 
 class MapWidget(QtWidgets.QWidget):
     pointer_style = 'pm2' + 'org' + 'l'
-    l_types = ["map", "sat", "skl"]
+    l_types = ["map", "sat", "sat,skl"]
 
     def __init__(self, parent, lat, lon):
         super().__init__(parent)
@@ -56,6 +56,7 @@ class MapWidget(QtWidgets.QWidget):
         self.params['lat'] = str(max(min(float(self.params['lat']), 180), -180))
         self.params['lon'] = str(max(min(float(self.params['lon']), 90), -90))
         self.update_image(**self.params)
+        print(key)
 
     def scale_map(self, key):
         if key == QtCore.Qt.Key.Key_PageUp:
