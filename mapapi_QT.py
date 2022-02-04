@@ -119,6 +119,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.mapWidget.params['lon'] = cords[1]
             self.mapWidget.add_pointer(*cords)
             self.mapWidget.update_image(**self.mapWidget.params)
+            full_address = toponym['metaDataProperty']['GeocoderMetaData']['Address']['formatted']
+            self.labelFullAddress.setText(full_address)
         except Exception:
             self.statusBar.showMessage("Неверный запрос", 2 * 1000)
         self.mapWidget.setFocus()
