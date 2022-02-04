@@ -47,15 +47,14 @@ class MapWidget(QtWidgets.QLabel):
             self.params['lon'] = str(float(self.params['lon']) + delta)
         elif key == 16777237:
             self.params['lon'] = str(float(self.params['lon']) - delta)
-        elif key == 1050:
+        elif key == 1050 or key == 82:
             self.l_pos = (self.l_pos + 1) % len(self.l_types)
-        elif key == 1040:
+        elif key == 1040 or key == 70:
             self.clear_points()
         self.params["l"] = self.l_types[self.l_pos]
         self.params['lat'] = str(max(min(float(self.params['lat']), 180), -180))
         self.params['lon'] = str(max(min(float(self.params['lon']), 90), -90))
         self.update_image(**self.params)
-        print(key)
 
     def scale_map(self, key):
         if key == QtCore.Qt.Key.Key_PageUp:
