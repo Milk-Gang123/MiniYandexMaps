@@ -1,19 +1,18 @@
 import sys
 
-import PyQt5
-from PyQt5 import QtCore, QtWidgets, uic
-from PyQt5.QtCore import Qt, QEvent
+from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow
 
 from geocoder import *
+from main_menu_design import Ui_MainWindow
 
 SCREEN_SIZE = [639, 539]
 LAT, LON = "37.620447", "55.751034"
 MAX_SCALE, MIN_SCALE = 19, 1
 
 
-class MapWidget(QtWidgets.QWidget):
+class MapWidget(QtWidgets.QLabel):
     pointer_style = 'pm2' + 'org' + 'l'
     l_types = ["map", "sat", "skl"]
 
@@ -21,12 +20,12 @@ class MapWidget(QtWidgets.QWidget):
         super().__init__(parent)
         self.l_pos = 0
         self.params = {'lat': lat, 'lon': lon, 'z': 18, 'pt': '', "l": self.l_types[self.l_pos]}
-        self.label = QtWidgets.QLabel(self)
         self.map = None
-        self.pixmap = QPixmap()
+        self.map_pixmap = QPixmap()
         self.update_image(**self.params)
 
-    def get_image(self, lat, lon, **params):
+    @staticmethod
+    def get_image(lat, lon, **params):
         image = get_static_map(lat, lon, **params)
         return image
 
@@ -35,8 +34,8 @@ class MapWidget(QtWidgets.QWidget):
         self.set_image(self.map)
 
     def set_image(self, image):
-        self.pixmap.loadFromData(image)
-        self.label.setPixmap(self.pixmap)
+        self.map_pixmap.loadFromData(image)
+        self.setPixmap(self.map_pixmap)
 
     def move_map(self, key):
         delta = 298.033 * math.e ** (-0.678 * self.params['z'])
@@ -76,71 +75,69 @@ class MapWidget(QtWidgets.QWidget):
         self.l_pos = (self.l_pos + 1) % len(self.l_types)
 
 
-
-class MainWindow(QMainWindow):
+class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi('main_menu.ui', self)
-        self.setFocusPolicy(QtCore.Qt.ClickFocus)
+        self.mapWidget = QtWidgets.QWidget()
+        self.len_postal_code = 0
+        self.setupUi(self)
         self.initUI()
 
     def initUI(self):
-        self.setGeometry(400, 400, *SCREEN_SIZE)
-        self.setWindowTitle('Карта')
-
-        self.widget = MapWidget(self.widget, LAT, LON)
-        self.widget.setGeometry(10, 10, 650, 450)
-        self.pushButton.clicked.connect(self.search)
-        self.pushButton_3 = QtWidgets.QPushButton(self)
-        self.pushButton_3.setGeometry(580, 30, 31, 21)
-        self.pushButton_3.setText("map")
-        self.pushButton_3.clicked.connect(self.change_mode)
-        self.pushButton_2.clicked.connect(self.clear_points)
-        self.check_box = QtWidgets.QCheckBox(self)
-        self.check_box.setStyleSheet('QCheckBox::indicator {width:  25px;height: 25px;}')
-        self.check_box.setGeometry(462, 407, 50, 50)
-        self.check_box.stateChanged.connect(self.show_postal_code)
+        self.mapWidget = MapWidget(self, LAT, LON)
+        self.gridLayoutControls.addWidget(self.mapWidget, 0, 0, 2, 2)
+        self.mapWidget.lower()
+        self.btnSearch.clicked.connect(self.search)
+        self.btnMapStyle.setFixedSize(31, 21)
+        self.btnMapStyle.setText("map")
+        self.btnMapStyle.clicked.connect(self.change_mode)
+        self.btnClear.clicked.connect(self.clear_points)
+        self.checkBoxPostCode.setStyleSheet('QCheckBox::indicator {width:  25px;height: 25px;}')
+        self.checkBoxPostCode.stateChanged.connect(self.show_postal_code)
 
     def keyPressEvent(self, event):
-        self.widget.move_map(event.key())
-        self.widget.scale_map(event.key())
+        self.mapWidget.move_map(event.key())
+        self.mapWidget.scale_map(event.key())
         if event.key() == 1040:
-            self.lineEdit.setText("Введите поисковый запрос")
+            self.lineEditSearch.setText("Введите поисковый запрос")
         elif event.key() == 1050:
-            self.pushButton_3.setText(self.widget.params["l"])
+            self.btnMapStyle.setText(self.mapWidget.params["l"])
 
     def change_mode(self):
-        self.widget.move_map(1050)
-        self.pushButton_3.setText(self.widget.params["l"])
+        self.mapWidget.move_map(1050)
+        self.btnMapStyle.setText(self.mapWidget.params["l"])
 
     def clear_points(self):
-        self.widget.move_map(1040)
-        self.lineEdit.setText("Введите поисковый запрос")
+        self.mapWidget.move_map(1040)
+        self.lineEditSearch.clear()
 
     def search(self):
         try:
-            address = self.lineEdit.text()
+            address = self.lineEditSearch.text()
             toponym = get_toponym(geocode(address))
             cords = [str(i) for i in get_coordinates(toponym)]
-            self.widget.params['lat'] = cords[0]
-            self.widget.params['lon'] = cords[1]
-            self.widget.add_pointer(*cords)
-            self.widget.update_image(**self.widget.params)
-        except Exception as e:
+            self.mapWidget.params['lat'] = cords[0]
+            self.mapWidget.params['lon'] = cords[1]
+            self.mapWidget.add_pointer(*cords)
+            self.mapWidget.update_image(**self.mapWidget.params)
+        except Exception:
             print('Неверный запрос')
-        self.widget.setFocus()
+        self.mapWidget.setFocus()
 
     def show_postal_code(self):
-        if self.check_box.isChecked():
-            request = geocode(self.lineEdit.text())
+        if self.checkBoxPostCode.isChecked():
+            request = geocode(self.lineEditSearch.text())
             postal_code = get_postal_code(request)
             if postal_code:
-                self.lineEdit.setText(self.lineEdit.text() + f' Почтовый индекс: {postal_code}')
+                self.lineEditSearch.setText(
+                    self.lineEditSearch.text() + f' Почтовый индекс: {postal_code}')
                 self.len_postal_code = len(f' Почтовый индекс: {postal_code}')
             else:
                 self.len_postal_code = 0
-        elif not self.check_box.isChecked():
-            self.lineEdit.setText(self.lineEdit.text()[:len(self.lineEdit.text()) - self.len_postal_code])
+        elif not self.checkBoxPostCode.isChecked():
+            self.lineEditSearch.setText(
+                self.lineEditSearch.text()[:len(self.lineEditSearch.text()) - self.len_postal_code])
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
