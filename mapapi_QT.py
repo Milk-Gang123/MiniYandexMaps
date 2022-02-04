@@ -124,21 +124,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.labelFullAddress.setText(full_address)
         except Exception:
             self.statusBar.showMessage("Неверный запрос", 2 * 1000)
+            self.statusBar.setStyleSheet("QStatusBar#statusBar {color: #f00;}")
         self.mapWidget.setFocus()
+        self.show_postal_code()
 
     def show_postal_code(self):
         if self.checkBoxPostCode.isChecked():
-            request = geocode(self.lineEditSearch.text())
+            request = geocode(self.labelFullAddress.text())
             postal_code = get_postal_code(request)
-            if postal_code:
-                self.lineEditSearch.setText(
-                    self.lineEditSearch.text() + f' Почтовый индекс: {postal_code}')
+            if postal_code and self.labelFullAddress.text() != "Полный адрес объекта":
+                self.labelFullAddress.setText(
+                    self.labelFullAddress.text() + f' Почтовый индекс: {postal_code}')
                 self.len_postal_code = len(f' Почтовый индекс: {postal_code}')
             else:
                 self.len_postal_code = 0
-        elif not self.checkBoxPostCode.isChecked():
-            self.lineEditSearch.setText(
-                self.lineEditSearch.text()[:len(self.lineEditSearch.text()) - self.len_postal_code])
+        elif not self.checkBoxPostCode.isChecked() and self.len_postal_code:
+            self.labelFullAddress.setText(
+                self.labelFullAddress.text()[:len(self.labelFullAddress.text()) - self.len_postal_code])
+            self.len_postal_code = 0
 
 
 if __name__ == '__main__':
