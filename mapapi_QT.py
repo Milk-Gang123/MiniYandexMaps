@@ -1,6 +1,6 @@
 import sys
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow
 
@@ -102,12 +102,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         elif event.key() == 1050:
             self.btnMapStyle.setText(self.mapWidget.params["l"])
 
-    def mousePressEvent(self, event):
+    def mousePressEvent(self, event: QtGui.QMouseEvent):
+        if event.button() == QtCore.Qt.LeftButton:
+            self.make_address_by_click(event)
+        if event.button() == QtCore.Qt.RightButton:
+            self.make_organization_by_click(event)
+
+    def make_organization_by_click(self, event):
+        pass
+
+    def make_address_by_click(self, event):
         if self.mapWidget.params['z'] <= 14:
             return
         self.clear_search_results()
         ll_x, ll_y = self.mapWidget.params['lat'], self.mapWidget.params['lon']
-        x, y = get_cords_by_click(event.x() - 10, event.y() - 45, float(ll_x), float(ll_y), self.mapWidget.params['z'])
+        x, y = get_cords_by_click(event.x() - 10, event.y() - 45, float(ll_x), float(ll_y),
+                                  self.mapWidget.params['z'])
         self.mapWidget.add_pointer(x, y)
         self.mapWidget.update_image(**self.mapWidget.params)
         toponym = get_toponym(geocode(f'{x},{y}', **self.mapWidget.params))
@@ -115,7 +125,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.lineEditSearch.setText(address)
         self.labelFullAddress.setText(address)
         self.show_postal_code()
-
 
     def change_mode(self):
         self.mapWidget.move_map(1050)
@@ -125,7 +134,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.mapWidget.move_map(1040)
         self.lineEditSearch.clear()
         self.labelFullAddress.clear()
-
 
     def search(self):
         try:
@@ -156,7 +164,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.len_postal_code = 0
         elif not self.checkBoxPostCode.isChecked() and self.len_postal_code:
             self.labelFullAddress.setText(
-                self.labelFullAddress.text()[:len(self.labelFullAddress.text()) - self.len_postal_code])
+                self.labelFullAddress.text()[
+                :len(self.labelFullAddress.text()) - self.len_postal_code])
             self.len_postal_code = 0
 
 
