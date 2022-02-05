@@ -7,14 +7,13 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 from geocoder import *
 from main_menu_design import Ui_MainWindow
 
-SCREEN_SIZE = [639, 539]
 LAT, LON = "37.620447", "55.751034"
 MAX_SCALE, MIN_SCALE = 19, 1
 
 
 class MapWidget(QtWidgets.QLabel):
     pointer_style = 'pm2' + 'org' + 'l'
-    l_types = ["map", "sat", "skl"]
+    l_types = ["map", "sat", "sat,skl"]
 
     def __init__(self, parent, lat, lon):
         super().__init__(parent)
@@ -47,9 +46,9 @@ class MapWidget(QtWidgets.QLabel):
             self.params['lon'] = str(float(self.params['lon']) + delta)
         elif key == 16777237:
             self.params['lon'] = str(float(self.params['lon']) - delta)
-        elif key == 1050:
+        elif key == 1050 or key == 82:
             self.l_pos = (self.l_pos + 1) % len(self.l_types)
-        elif key == 1040:
+        elif key == 1040 or key == 70:
             self.clear_points()
         self.params["l"] = self.l_types[self.l_pos]
         self.params['lat'] = str(max(min(float(self.params['lat']), 180), -180))
@@ -91,7 +90,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnMapStyle.setFixedSize(31, 21)
         self.btnMapStyle.setText("map")
         self.btnMapStyle.clicked.connect(self.change_mode)
-        self.btnClear.clicked.connect(self.clear_points)
+        self.btnClear.clicked.connect(self.clear_search_results)
         self.checkBoxPostCode.setStyleSheet('QCheckBox::indicator {width:  25px;height: 25px;}')
         self.checkBoxPostCode.stateChanged.connect(self.show_postal_code)
 
@@ -99,7 +98,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.mapWidget.move_map(event.key())
         self.mapWidget.scale_map(event.key())
         if event.key() == 1040:
-            self.lineEditSearch.setText("Введите поисковый запрос")
+            self.lineEditSearch.clear()
         elif event.key() == 1050:
             self.btnMapStyle.setText(self.mapWidget.params["l"])
 
@@ -115,9 +114,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.mapWidget.move_map(1050)
         self.btnMapStyle.setText(self.mapWidget.params["l"])
 
-    def clear_points(self):
+    def clear_search_results(self):
         self.mapWidget.move_map(1040)
         self.lineEditSearch.clear()
+        self.labelFullAddress.clear()
 
 
     def search(self):
@@ -129,23 +129,28 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.mapWidget.params['lon'] = cords[1]
             self.mapWidget.add_pointer(*cords)
             self.mapWidget.update_image(**self.mapWidget.params)
+            full_address = toponym['metaDataProperty']['GeocoderMetaData']['Address']['formatted']
+            self.labelFullAddress.setText(full_address)
         except Exception:
-            print('Неверный запрос')
+            self.statusBar.showMessage("Неверный запрос", 2 * 1000)
+            self.statusBar.setStyleSheet("QStatusBar#statusBar {color: #f00;}")
         self.mapWidget.setFocus()
+        self.show_postal_code()
 
     def show_postal_code(self):
         if self.checkBoxPostCode.isChecked():
-            request = geocode(self.lineEditSearch.text())
+            request = geocode(self.labelFullAddress.text())
             postal_code = get_postal_code(request)
-            if postal_code:
-                self.lineEditSearch.setText(
-                    self.lineEditSearch.text() + f' Почтовый индекс: {postal_code}')
+            if postal_code and self.labelFullAddress.text() != "Полный адрес объекта":
+                self.labelFullAddress.setText(
+                    self.labelFullAddress.text() + f' Почтовый индекс: {postal_code}')
                 self.len_postal_code = len(f' Почтовый индекс: {postal_code}')
             else:
                 self.len_postal_code = 0
-        elif not self.checkBoxPostCode.isChecked():
-            self.lineEditSearch.setText(
-                self.lineEditSearch.text()[:len(self.lineEditSearch.text()) - self.len_postal_code])
+        elif not self.checkBoxPostCode.isChecked() and self.len_postal_code:
+            self.labelFullAddress.setText(
+                self.labelFullAddress.text()[:len(self.labelFullAddress.text()) - self.len_postal_code])
+            self.len_postal_code = 0
 
 
 if __name__ == '__main__':
