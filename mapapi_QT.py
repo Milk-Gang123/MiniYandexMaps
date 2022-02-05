@@ -156,7 +156,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.make_organization_by_click(event)
 
     def make_organization_by_click(self, event):
-        pass
+        ll_x, ll_y = self.mapWidget.params['lat'], self.mapWidget.params['lon']
+        x, y = get_cords_by_click(event.x() - 10, event.y() - 45, float(ll_x), float(ll_y),
+                                  self.mapWidget.params['z'])
+        toponym = get_toponym(geocode(f'{x},{y}', **self.mapWidget.params))
+        address = toponym['metaDataProperty']['GeocoderMetaData']['text']
+        organizations = get_organizations_to_point(address, ll=f'{x},{y}')
+        if not organizations['features']:
+            return
+        organization = organizations['features'][0]
+        org_coord = organization['geometry']['coordinates']
+        if lonlat_distance(org_coord, (x, y)) <= 50:
+            name = organization['properties']['name']
+            address = organization['properties']['CompanyMetaData']['address']
+            self.lineEditSearch.setText(name)
+            self.labelFullAddress.setText(address)
+            self.show_postal_code()
 
     def make_address_by_click(self, event):
         self.clear_search_results()
