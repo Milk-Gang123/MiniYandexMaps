@@ -146,3 +146,13 @@ def pprint_snippet(snippet):
     print('Адрес:', snippet['address'])
     print('Время работы:', snippet['hours']['text'])
     print('Расстояние от организации до исходной точки:', snippet['distance'], 'м')
+
+
+def get_cords_by_click(x, y, ll_x, ll_y, z):
+    delta_x = 360 / 2 ** z * 2 * 1.17
+    k = 0.7
+    delta_y = 360 / 2 ** z * 2 * k ** 2
+    lat = x / 600 * delta_x + ll_x - delta_x / 2
+    lon = -y / 450 * delta_y + ll_y + delta_y / 2
+    return lat, lon
+
