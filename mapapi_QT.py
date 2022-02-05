@@ -156,6 +156,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.make_organization_by_click(event)
 
     def make_organization_by_click(self, event):
+        if self.mapWidget.params['z'] < 14:
+            return
         ll_x, ll_y = self.mapWidget.params['lat'], self.mapWidget.params['lon']
         x, y = get_cords_by_click(event.x() - 10, event.y() - 45, float(ll_x), float(ll_y),
                                   self.mapWidget.params['z'])
@@ -167,6 +169,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         organization = organizations['features'][0]
         org_coord = organization['geometry']['coordinates']
         if lonlat_distance(org_coord, (x, y)) <= 50:
+            self.clear_search_results()
             name = organization['properties']['name']
             address = organization['properties']['CompanyMetaData']['address']
             self.lineEditSearch.setText(name)
@@ -174,6 +177,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.show_postal_code()
 
     def make_address_by_click(self, event):
+        if self.mapWidget.params['z'] < 14:
+            return
         self.clear_search_results()
         ll_x, ll_y = self.mapWidget.params['lat'], self.mapWidget.params['lon']
         x, y = get_cords_by_click(event.x() - 10, event.y() - 45, float(ll_x), float(ll_y),
