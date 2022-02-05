@@ -73,11 +73,58 @@ class MapWidget(QtWidgets.QLabel):
     def change_mode(self):
         self.l_pos = (self.l_pos + 1) % len(self.l_types)
 
+    def from_pixel_to_coordinates(self, pixel_coord):
+        # pixel_coord = self.mapFromParent(pixel_coord)
+        # px, py = pixel_coord.x(), pixel_coord.y()
+        # https://stackoverflow.com/a/2706847
+        # pixel_coord = self.mapFromParent(pixel_coord)
+        # pixel_globe_width = self.map_pixmap.size().width() * math.pow(2, self.params['z'])
+        # pixel_globe_height = self.map_pixmap.size().height() * math.pow(2, self.params['z'])
+        # x_pixels_to_degree_ratio = pixel_globe_width / 360
+        # y_pixels_to_degree_ratio = pixel_globe_height / (2 * math.pi)
+        # pixel_globe_center = pixel_globe_width / 2, pixel_globe_height / 2
+        # pixel_glob_center_x, pixel_glob_center_y = pixel_globe_center
+        # px, py = pixel_coord
+        # longitude = (px - pixel_glob_center_x) / x_pixels_to_degree_ratio
+        # latitude = (2 * math.atan(math.exp(py - pixel_glob_center_y))) / - y_pixels_to_degree_ratio
+        # return latitude, longitude
+        #
+        # lat = (px / (self.map_pixmap.size().height() / 180) - 90) / -1
+        # lng = py / (self.map_pixmap.size().width() / 360) - 180
+        #
+        # pixels_per_lon_degree = self.map_pixmap.width() / 360
+        # pixels_per_lon_radian = self.map_pixmap.width() / (2 * math.pi)
+        # tiles_no = 1 << self.params['z']
+        # px /= tiles_no
+        # py /= tiles_no
+        # center_x, center_y = self.map_pixmap.width() / 2, self.map_pixmap.height() / 2
+        # lng = (px - center_x) / pixels_per_lon_degree
+        # lat_rad = (py - center_y) / -pixels_per_lon_radian
+        # lat = math.degrees(2 * math.atan(math.exp(lat_rad)) - math.pi / 2)
+        # lng = lng + float(self.params['lon'])
+        # lat = lat + float(self.params['lat'])
+        #
+        # mapWidth = self.map_pixmap.width()
+        # mapHeight = self.map_pixmap.height()
+        # px /= 600 ** self.params['z']
+        # py /= 450 ** self.params['z']
+        # lng = ((360 * px) / mapWidth) - 180
+        # lat = 90 * (-1 + (4 * math.atan(
+        #     math.pow(math.e, (math.pi - (2 * math.pi * py) / mapHeight)))) / math.pi)
+        # lng = lng + float(self.params['lon'])
+        # lat = lat + float(self.params['lat'])
+        #
+        # lng = (px * 360) / (650 * math.pow(2, self.params['z'])) - 180
+        # efactor = math.exp(0.5 - py / 450 / math.pow(2, self.params['z'])) * 4 * math.pi
+        # lat = math.asin((efactor - 1) / (efactor + 1)) * 180 / math.pi
+        # lng = lng + 180 + float(self.params['lon'])
+        # lat = lat - 65.21843151737241 + float(self.params['lat'])
+        return None, None
+
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
-        self.mapWidget = QtWidgets.QWidget()
         self.len_postal_code = 0
         self.setupUi(self)
         self.initUI()
@@ -112,8 +159,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         pass
 
     def make_address_by_click(self, event):
-        if self.mapWidget.params['z'] <= 14:
-            return
         self.clear_search_results()
         ll_x, ll_y = self.mapWidget.params['lat'], self.mapWidget.params['lon']
         x, y = get_cords_by_click(event.x() - 10, event.y() - 45, float(ll_x), float(ll_y),
