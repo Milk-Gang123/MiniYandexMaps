@@ -19,7 +19,7 @@ class MapWidget(QtWidgets.QLabel):
     def __init__(self, parent, lat, lon):
         super().__init__(parent)
         self.l_pos = 0
-        self.params = {'lat': lat, 'lon': lon, 'z': 1, 'pt': '', "l": self.l_types[self.l_pos]}
+        self.params = {'lat': lat, 'lon': lon, 'z': 18, 'pt': '', "l": self.l_types[self.l_pos]}
         self.map = None
         self.map_pixmap = QPixmap()
         self.update_image(**self.params)
@@ -105,9 +105,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def mousePressEvent(self, event):
         ll_x, ll_y = self.mapWidget.params['lat'], self.mapWidget.params['lon']
+        if self.mapWidget.params['z'] <= 14:
+            return
         x, y = get_cords_by_click(event.x() - 10, event.y() - 10, float(ll_x), float(ll_y), self.mapWidget.params['z'])
-        #self.mapWidget.add_pointer(float(ll_x), float(ll_y))
-        #self.mapWidget.update_image(**self.mapWidget.params)
         self.mapWidget.add_pointer(x, y)
         self.mapWidget.update_image(**self.mapWidget.params)
 
