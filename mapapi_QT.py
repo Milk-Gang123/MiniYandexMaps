@@ -103,12 +103,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.btnMapStyle.setText(self.mapWidget.params["l"])
 
     def mousePressEvent(self, event):
-        ll_x, ll_y = self.mapWidget.params['lat'], self.mapWidget.params['lon']
         if self.mapWidget.params['z'] <= 14:
             return
-        x, y = get_cords_by_click(event.x() - 10, event.y() - 10, float(ll_x), float(ll_y), self.mapWidget.params['z'])
+        self.clear_search_results()
+        ll_x, ll_y = self.mapWidget.params['lat'], self.mapWidget.params['lon']
+        x, y = get_cords_by_click(event.x() - 10, event.y() - 45, float(ll_x), float(ll_y), self.mapWidget.params['z'])
         self.mapWidget.add_pointer(x, y)
         self.mapWidget.update_image(**self.mapWidget.params)
+        toponym = get_toponym(geocode(f'{x},{y}', **self.mapWidget.params))
+        address = toponym['metaDataProperty']['GeocoderMetaData']['text']
+        self.lineEditSearch.setText(address)
+        self.labelFullAddress.setText(address)
+        self.show_postal_code()
+
 
     def change_mode(self):
         self.mapWidget.move_map(1050)

@@ -149,7 +149,7 @@ def pprint_snippet(snippet):
 
 
 def get_cords_by_click(x, y, ll_x, ll_y, z):
-    delta_x = 360 / 2 ** z * 2 * 1.16
+    delta_x = 360 / 2 ** z * 2 * 1.17
     k = 0.7
     delta_y = 360 / 2 ** z * 2 * k ** 2
     lat = x / 600 * delta_x + ll_x - delta_x / 2
