@@ -133,14 +133,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             request = geocode(self.labelFullAddress.text())
             postal_code = get_postal_code(request)
             if postal_code and self.labelFullAddress.text() != "Полный адрес объекта":
-                self.labelFullAddress.setText(
-                    self.labelFullAddress.text() + f' Почтовый индекс: {postal_code}')
-                self.len_postal_code = len(f' Почтовый индекс: {postal_code}')
+                self.labelFullAddress.setText(f'Почтовый индекс: {postal_code}, ' +
+                                              self.labelFullAddress.text())
+                self.len_postal_code = len(f'Почтовый индекс: {postal_code}, ')
             else:
                 self.len_postal_code = 0
         elif not self.checkBoxPostCode.isChecked() and self.len_postal_code:
             self.labelFullAddress.setText(
-                self.labelFullAddress.text()[:len(self.labelFullAddress.text()) - self.len_postal_code])
+                self.labelFullAddress.text()[self.len_postal_code:])
             self.len_postal_code = 0
 
 
